@@ -51,7 +51,7 @@ void insertLast(struct Node* head, int data){
     return;
 }
 
-struct Node* reverse(struct Node** head){
+void reverse(struct Node** head){
     struct Node* tmp = NULL;
     struct Node* cur = *head;
 
@@ -64,6 +64,7 @@ struct Node* reverse(struct Node** head){
     if (tmp != NULL){
         *head = tmp->prev;
     }
+    return;
 }
 
 // Đây là hàm để on các phần tử trong danh sách ra màn hình
@@ -81,26 +82,45 @@ void Print(struct Node* head){
 
 void removeData(struct Node** head, int data){
     if (*head == NULL) return;
-    struct Node* tmp = head;
+
+    struct Node* tmp = (*head);
 
     if ((*head)->data == data){
-        (*head)->next->prev = NULL;
-        (*head) = (*head)->next;
+        (*head) = tmp->next;
+
+        if ((*head) != NULL) (*head)->prev = NULL;
+            
         free(tmp);
         return;
     }
+
     while(tmp != NULL){
-        if (tmp->data == data){
-            tmp->prev->next = tmp->next;
-            tmp->next->prev = tmp->prev;
-            free(tmp);
-            return;
-        }
+        if (tmp->data == data) break;
         tmp = tmp->next;
     }
+    if (tmp == NULL) return;
+    if (tmp->prev != NULL) {
+        tmp->prev->next = tmp->next;
+    }
+    if (tmp->next != NULL){
+        tmp->next->prev = tmp->prev;
+    }
+    free(tmp);
 }
 
 int main(){
+    struct Node* head = makeNode(0);
+    
+    insertLast(head, 1);
+    insertLast(head, 2);
+    insertLast(head, 3);
+    
+    Print(head);
+    
+    removeData(&head, 3);
+    removeData(&head, 2);
+    
+    Print(head);
 
     return 0;
 }
