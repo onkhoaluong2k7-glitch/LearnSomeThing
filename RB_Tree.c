@@ -138,26 +138,31 @@ void replaceNode(Node **root, Node *u, Node *v){
     if (v) v->parent = u->parent;
 }
 
-void fixDelete(Node **root, Node * x){
+void fixDelete(Node **root, Node *x){
     while(x != *root  && (x == NULL || x->color == BLACK)){
         if ( x == x->parent->left){
             Node *w = x->parent->right;
+            // Case 2: Anh em cua N la Red
             if (w != NULL && w->color == RED){
                 w->color = BLACK;
                 x->parent->color = RED;
                 rotateLeft(root, x->parent);
                 w = x->parent->right;
             }
+            // 2 Node con cua N la Black
             if ((w->left == NULL || w->left->color == BLACK)
             && (w->right == NULL || w->right->color == BLACK)){
                 w->color = RED;
                 x = x->parent;
             } else {
+                // Node con ben phai cua N la Black con Node ben trai la Red
                 if (w->right == NULL || w->right->color == BLACK){
                     if (w->left) w->left->color = BLACK;
-                    rotateLeft(root, w);
+                    w->color = RED;
+                    rotateRight(root, w);
                     w = x->parent->right;
                 }
+                // Neu con phai la mau do
                 w->color = x->parent->color;
                 x->parent->color = BLACK;
                 if (w->right) w->right->color = BLACK;
@@ -166,7 +171,32 @@ void fixDelete(Node **root, Node * x){
             } 
         } else {
             Node* w = x->parent->left;
-            if (w->color);
+
+            if (w != NULL && w->color == RED){
+                w->color = BLACK;
+                x->parent->color = RED;
+                rotateRight(root, x->parent);
+                w = x->parent->left;
+            };
+
+            if ((!w->left || w->left->color == BLACK) &&
+            (!w->right || w->right->color == BLACK)){
+                w->color = RED;
+                x = x->parent;
+            } else {
+                if (!w->left || w->left->color == BLACK){
+                    if (w->right) w->right->color = BLACK;
+                    w->color = RED;
+                    rotateLeft(root, w);
+                    w = x->parent->left;
+                }
+
+                w->color = w->parent->color;
+                x->parent->color = BLACK;
+                if (w->right) w->left->color = BLACK;
+                rotateRight(root, x->parent);
+                x = *root;
+            }
         }
     }
 }
@@ -221,6 +251,11 @@ int main(){
     insert(&root, 5); 
     printf("Preorder:\n"); 
     traveral(root); 
+
+    deleteNode(&root,20);
+    deleteNode(&root, 25);
+    printf("Preorder:\n");
+    traveral(root);
 
     return 0;
 }
